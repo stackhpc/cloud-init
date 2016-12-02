@@ -169,7 +169,6 @@ class Renderer(renderer.Renderer):
     iface_defaults = tuple([
         ('ONBOOT', True),
         ('USERCTL', False),
-        ('NM_CONTROLLED', False),
         ('BOOTPROTO', 'none'),
     ])
 
