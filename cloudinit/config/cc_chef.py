@@ -33,7 +33,7 @@ file).
 
     chef:
        directories: (defaulting to /etc/chef, /var/log/chef, /var/lib/chef,
-                     /var/cache/chef, /var/backups/chef, /var/run/chef)
+                     /var/cache/chef, /var/backups/chef, /run/chef)
        validation_cert: (optional string to be written to file validation_key)
                         special value 'system' means set use existing file
        validation_key: (optional the path for validation_cert. default
@@ -85,7 +85,7 @@ CHEF_DIRS = tuple([
     '/var/lib/chef',
     '/var/cache/chef',
     '/var/backups/chef',
-    '/var/run/chef',
+    '/run/chef',
 ])
 REQUIRED_CHEF_DIRS = tuple([
     '/etc/chef',
@@ -109,7 +109,7 @@ CHEF_RB_TPL_DEFAULTS = {
     'json_attribs': CHEF_FB_PATH,
     'file_cache_path': "/var/cache/chef",
     'file_backup_path': "/var/backups/chef",
-    'pid_file': "/var/run/chef/client.pid",
+    'pid_file': "/run/chef/client.pid",
     'show_time': True,
 }
 CHEF_RB_TPL_BOOL_KEYS = frozenset(['show_time'])

@@ -167,7 +167,6 @@ else:
         (ETC + '/cloud/cloud.cfg.d', glob('config/cloud.cfg.d/*')),
         (ETC + '/cloud/templates', glob('templates/*')),
         (ETC + '/NetworkManager/dispatcher.d/', ['tools/hook-network-manager']),
-        (ETC + '/dhcp/dhclient-exit-hooks.d/', ['tools/hook-dhclient']),
         (USR_LIB_EXEC + '/cloud-init', ['tools/uncloud-init',
                                         'tools/write-ssh-key-fingerprints']),
         (USR + '/share/doc/cloud-init', [f for f in glob('doc/*') if is_f(f)]),
@@ -175,7 +174,7 @@ else:
             [f for f in glob('doc/examples/*') if is_f(f)]),
         (USR + '/share/doc/cloud-init/examples/seed',
             [f for f in glob('doc/examples/seed/*') if is_f(f)]),
-        (LIB + '/udev/rules.d', [f for f in glob('udev/*.rules')]),
+        ('/usr/lib/udev/rules.d', [f for f in glob('udev/*.rules')]),
     ]
     # Use a subclass for install that handles
     # adding on the right init system configuration files
@@ -199,7 +198,6 @@ setuptools.setup(
     scripts=['tools/cloud-init-per'],
     license='Dual-licensed under GPLv3 or Apache 2.0',
     data_files=data_files,
-    install_requires=requirements,
     cmdclass=cmdclass,
     entry_points={
         'console_scripts': [

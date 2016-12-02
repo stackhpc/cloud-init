@@ -37,13 +37,16 @@ CFG_BUILTIN = {
     ],
     'def_log_file': '/var/log/cloud-init.log',
     'log_cfgs': [],
-    'syslog_fix_perms': ['syslog:adm', 'root:adm'],
+    'mount_default_fields': [None, None, 'auto', 'defaults,nofail', '0', '2'],
+    'ssh_deletekeys': False,
+    'ssh_genkeytypes': [],
+    'syslog_fix_perms': [],
     'system_info': {
         'paths': {
             'cloud_dir': '/var/lib/cloud',
             'templates_dir': '/etc/cloud/templates/',
         },
-        'distro': 'ubuntu',
+        'distro': 'rhel',
     },
     'vendor_data': {'enabled': True, 'prefix': []},
 }
