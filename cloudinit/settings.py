@@ -36,6 +36,7 @@ CFG_BUILTIN = {
         'None',
     ],
     'def_log_file': '/var/log/cloud-init.log',
+    'def_log_file_mode': 0o600,
     'log_cfgs': [],
     'mount_default_fields': [None, None, 'auto', 'defaults,nofail', '0', '2'],
     'ssh_deletekeys': False,

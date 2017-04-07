@@ -397,10 +397,14 @@ timezone: US/Eastern
 # if syslog_fix_perms is a list, it will iterate through and use the
 # first pair that does not raise error.
 #
+# 'def_log_file' will be created with mode 'def_log_file_mode', which
+# is specified as a numeric value and defaults to 0600.
+#
 # the default values are '/var/log/cloud-init.log' and 'syslog:adm'
 # the value of 'def_log_file' should match what is configured in logging
 # if either is empty, then no change of ownership will be done
 def_log_file: /var/log/my-logging-file.log
+def_log_file_mode: 0600
 syslog_fix_perms: syslog:root
 
 # you can set passwords for a user or multiple users

@@ -145,8 +145,9 @@ class Init(object):
     def _initialize_filesystem(self):
         util.ensure_dirs(self._initial_subdirs())
         log_file = util.get_cfg_option_str(self.cfg, 'def_log_file')
+        log_file_mode = util.get_cfg_option_int(self.cfg, 'def_log_file_mode')
         if log_file:
-            util.ensure_file(log_file)
+            util.ensure_file(log_file, mode=log_file_mode)
             perms = self.cfg.get('syslog_fix_perms')
             if not perms:
                 perms = {}
