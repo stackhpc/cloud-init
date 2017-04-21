@@ -27,6 +27,7 @@ CFG_BUILTIN = {
         'MAAS',
         'GCE',
         'OpenStack',
+        'AliYun',
         'Ec2',
         'CloudSigma',
         'CloudStack',
