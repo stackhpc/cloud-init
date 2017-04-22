@@ -195,6 +195,76 @@ NETWORKING=yes
             self.assertCfgEquals(expected_buf, str(write_buf))
             self.assertEqual(write_buf.mode, 0o644)
 
+    def test_apply_network_config_rh(self):
+        rh_distro = self._get_distro('rhel')
+
+        write_bufs = {}
+
+        def replace_write(filename, content, mode=0o644, omode="wb"):
+            buf = WriteBuffer()
+            buf.mode = mode
+            buf.omode = omode
+            buf.write(content)
+            write_bufs[filename] = buf
+
+        with ExitStack() as mocks:
+            # sysconfig availability checks
+            mocks.enter_context(
+                mock.patch.object(util, 'which', return_value=True))
+            mocks.enter_context(
+                mock.patch.object(util, 'write_file', replace_write))
+            mocks.enter_context(
+                mock.patch.object(util, 'load_file', return_value=''))
+            mocks.enter_context(
+                mock.patch.object(os.path, 'isfile', return_value=True))
+
+            rh_distro.apply_network_config(V1_NET_CFG, False)
+
+            self.assertEqual(len(write_bufs), 5)
+
+            # eth0
+            self.assertIn('/etc/sysconfig/network-scripts/ifcfg-eth0',
+                          write_bufs)
+            write_buf = write_bufs['/etc/sysconfig/network-scripts/ifcfg-eth0']
+            expected_buf = '''
+# Created by cloud-init on instance boot automatically, do not edit.
+#
+BOOTPROTO=none
+DEVICE=eth0
+IPADDR=192.168.1.5
+NETMASK=255.255.255.0
+ONBOOT=yes
+TYPE=Ethernet
+USERCTL=no
+'''
+            self.assertCfgEquals(expected_buf, str(write_buf))
+            self.assertEqual(write_buf.mode, 0o644)
+
+            # eth1
+            self.assertIn('/etc/sysconfig/network-scripts/ifcfg-eth1',
+                          write_bufs)
+            write_buf = write_bufs['/etc/sysconfig/network-scripts/ifcfg-eth1']
+            expected_buf = '''
+# Created by cloud-init on instance boot automatically, do not edit.
+#
+BOOTPROTO=dhcp
+DEVICE=eth1
+ONBOOT=yes
+TYPE=Ethernet
+USERCTL=no
+'''
+            self.assertCfgEquals(expected_buf, str(write_buf))
+            self.assertEqual(write_buf.mode, 0o644)
+
+            self.assertIn('/etc/sysconfig/network', write_bufs)
+            write_buf = write_bufs['/etc/sysconfig/network']
+            expected_buf = '''
+# Created by cloud-init v. 0.7
+NETWORKING=yes
+'''
+            self.assertCfgEquals(expected_buf, str(write_buf))
+            self.assertEqual(write_buf.mode, 0o644)
+
     def test_write_ipv6_rhel(self):
         rh_distro = self._get_distro('rhel')
 
@@ -214,7 +284,6 @@ NETWORKING=yes
                 mock.patch.object(util, 'load_file', return_value=''))
             mocks.enter_context(
                 mock.patch.object(os.path, 'isfile', return_value=False))
-
             rh_distro.apply_network(BASE_NET_CFG_IPV6, False)
 
             self.assertEqual(len(write_bufs), 4)
@@ -259,6 +328,74 @@ BROADCAST="192.168.1.0"
 IPV6INIT=yes
 IPV6ADDR="2607:f0d0:1002:0011::3"
 IPV6_DEFAULTGW="2607:f0d0:1002:0011::1"
+'''
+            self.assertCfgEquals(expected_buf, str(write_buf))
+            self.assertEqual(write_buf.mode, 0o644)
+
+            self.assertIn('/etc/sysconfig/network', write_bufs)
+            write_buf = write_bufs['/etc/sysconfig/network']
+            expected_buf = '''
+# Created by cloud-init v. 0.7
+NETWORKING=yes
+NETWORKING_IPV6=yes
+IPV6_AUTOCONF=no
+'''
+            self.assertCfgEquals(expected_buf, str(write_buf))
+            self.assertEqual(write_buf.mode, 0o644)
+
+    def test_apply_network_config_ipv6_rh(self):
+        rh_distro = self._get_distro('rhel')
+
+        write_bufs = {}
+
+        def replace_write(filename, content, mode=0o644, omode="wb"):
+            buf = WriteBuffer()
+            buf.mode = mode
+            buf.omode = omode
+            buf.write(content)
+            write_bufs[filename] = buf
+
+        with ExitStack() as mocks:
+            mocks.enter_context(
+                mock.patch.object(util, 'which', return_value=True))
+            mocks.enter_context(
+                mock.patch.object(util, 'write_file', replace_write))
+            mocks.enter_context(
+                mock.patch.object(util, 'load_file', return_value=''))
+            mocks.enter_context(
+                mock.patch.object(os.path, 'isfile', return_value=True))
+
+            rh_distro.apply_network_config(V1_NET_CFG_IPV6, False)
+
+            self.assertEqual(len(write_bufs), 5)
+
+            self.assertIn('/etc/sysconfig/network-scripts/ifcfg-eth0',
+                          write_bufs)
+            write_buf = write_bufs['/etc/sysconfig/network-scripts/ifcfg-eth0']
+            expected_buf = '''
+# Created by cloud-init on instance boot automatically, do not edit.
+#
+BOOTPROTO=none
+DEVICE=eth0
+IPV6ADDR=2607:f0d0:1002:0011::2/64
+IPV6INIT=yes
+ONBOOT=yes
+TYPE=Ethernet
+USERCTL=no
+'''
+            self.assertCfgEquals(expected_buf, str(write_buf))
+            self.assertEqual(write_buf.mode, 0o644)
+            self.assertIn('/etc/sysconfig/network-scripts/ifcfg-eth1',
+                          write_bufs)
+            write_buf = write_bufs['/etc/sysconfig/network-scripts/ifcfg-eth1']
+            expected_buf = '''
+# Created by cloud-init on instance boot automatically, do not edit.
+#
+BOOTPROTO=dhcp
+DEVICE=eth1
+ONBOOT=yes
+TYPE=Ethernet
+USERCTL=no
 '''
             self.assertCfgEquals(expected_buf, str(write_buf))
             self.assertEqual(write_buf.mode, 0o644)
