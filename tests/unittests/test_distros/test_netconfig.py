@@ -67,6 +67,33 @@ iface eth1 inet6 static
     gateway 2607:f0d0:1002:0011::1
 '''
 
+V1_NET_CFG = {'config': [{'name': 'eth0',
+
+                          'subnets': [{'address': '192.168.1.5',
+                                       'broadcast': '192.168.1.0',
+                                       'gateway': '192.168.1.254',
+                                       'netmask': '255.255.255.0',
+                                       'type': 'static'}],
+                          'type': 'physical'},
+                         {'name': 'eth1',
+                          'subnets': [{'control': 'auto', 'type': 'dhcp4'}],
+                          'type': 'physical'}],
+              'version': 1}
+
+V1_NET_CFG_IPV6 = {'config': [{'name': 'eth0',
+                               'subnets': [{'address':
+                                            '2607:f0d0:1002:0011::2',
+                                            'gateway':
+                                            '2607:f0d0:1002:0011::1',
+                                            'netmask': '64',
+                                            'type': 'static'}],
+                               'type': 'physical'},
+                              {'name': 'eth1',
+                               'subnets': [{'control': 'auto',
+                                            'type': 'dhcp4'}],
+                               'type': 'physical'}],
+                   'version': 1}
+
 
 class WriteBuffer(object):
     def __init__(self):

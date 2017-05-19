@@ -246,7 +246,7 @@ class Renderer(renderer.Renderer):
     def __init__(self, config=None):
         if not config:
             config = {}
-        self.sysconf_dir = config.get('sysconf_dir', 'etc/sysconfig/')
+        self.sysconf_dir = config.get('sysconf_dir', 'etc/sysconfig')
         self.netrules_path = config.get(
             'netrules_path', 'etc/udev/rules.d/70-persistent-net.rules')
         self.dns_path = config.get('dns_path', 'etc/resolv.conf')
