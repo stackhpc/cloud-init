@@ -343,6 +343,9 @@ class Renderer(renderer.Renderer):
                             iface_cfg['NETMASK' + str(ipv4_index)] = \
                                 subnet['netmask']
 
+                if 'gateway' in subnet:
+                    iface_cfg['GATEWAY'] = subnet['gateway']
+
     @classmethod
     def _render_subnet_routes(cls, iface_cfg, route_cfg, subnets):
         for i, subnet in enumerate(subnets, start=len(iface_cfg.children)):
