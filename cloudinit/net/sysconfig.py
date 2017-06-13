@@ -11,6 +11,17 @@ from cloudinit import util
 from . import renderer
 
 
+def _subnet_is_ipv6(subnet):
+    """Common helper for checking network_state subnets for ipv6."""
+    # 'static6' or 'dhcp6'
+    if subnet['type'].endswith('6'):
+        # This is a request for DHCPv6.
+        return True
+    elif subnet['type'] == 'static' and ":" in subnet['address']:
+        return True
+    return False
+
+
 def _make_header(sep='#'):
     lines = [
         "Created by cloud-init on instance boot automatically, do not edit.",
@@ -286,7 +297,7 @@ class Renderer(renderer.Renderer):
                 # but should remain 'none'
                 # if iface_cfg['BOOTPROTO'] == 'none':
                 #    iface_cfg['BOOTPROTO'] = 'static'
-                if subnet.get('ipv6'):
+                if _subnet_is_ipv6(subnet):
                     iface_cfg['IPV6INIT'] = True
             else:
                 raise ValueError("Unknown subnet type '%s' found"
@@ -303,7 +314,7 @@ class Renderer(renderer.Renderer):
             elif subnet_type in ['dhcp4', 'dhcp']:
                 continue
             elif subnet_type == 'static':
-                if subnet.get('ipv6'):
+                if _subnet_is_ipv6(subnet):
                     ipv6_index = ipv6_index + 1
                     if 'netmask' in subnet and str(subnet['netmask']) != "":
                         ipv6_cidr = (subnet['address'] +
