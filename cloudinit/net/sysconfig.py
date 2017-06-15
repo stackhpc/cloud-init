@@ -12,6 +12,12 @@ from cloudinit import util
 from . import renderer
 
 
+def is_ipv6_addr(address):
+    if not address:
+        return False
+    return ":" in str(address)
+
+
 def _subnet_is_ipv6(subnet):
     """Common helper for checking network_state subnets for ipv6."""
     # 'static6' or 'dhcp6'
@@ -164,9 +170,10 @@ class Route(ConfigMap):
                 elif proto == "ipv6" and self.is_ipv6_route(address_value):
                     netmask_value = str(self._conf['NETMASK' + index])
                     gateway_value = str(self._conf['GATEWAY' + index])
-                    buf.write("%s/%s via %s\n" % (address_value,
-                                                  netmask_value,
-                                                  gateway_value))
+                    buf.write("%s/%s via %s dev %s\n" % (address_value,
+                                                         netmask_value,
+                                                         gateway_value,
+                                                         self._route_name))
 
         return buf.getvalue()
 
@@ -375,7 +382,7 @@ class Renderer(renderer.Renderer):
     def _render_subnet_routes(cls, iface_cfg, route_cfg, subnets):
         for i, subnet in enumerate(subnets, start=len(iface_cfg.children)):
             for route in subnet.get('routes', []):
-                is_ipv6 = subnet.get('ipv6')
+                is_ipv6 = subnet.get('ipv6') or is_ipv6_addr(route['gateway'])
 
                 if _is_default_route(route):
                     if (
@@ -397,7 +404,7 @@ class Renderer(renderer.Renderer):
                     # also provided the default route?
                     iface_cfg['DEFROUTE'] = True
                     if 'gateway' in route:
-                        if is_ipv6:
+                        if is_ipv6 or is_ipv6_addr(route['gateway']):
                             iface_cfg['IPV6_DEFAULTGW'] = route['gateway']
                             route_cfg.has_set_default_ipv6 = True
                         else:
