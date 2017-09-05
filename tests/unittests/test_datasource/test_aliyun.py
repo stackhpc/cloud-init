@@ -165,7 +165,7 @@ class TestAliYunDatasource(test_helpers.HttprettyTestCase):
                          public_keys['key-pair-0']['openssh-key'])
 
 
-class TestIsAliYun(test_helpers.CiTestCase):
+class TestIsAliYun(test_helpers.HttprettyTestCase):
     ALIYUN_PRODUCT = 'Alibaba Cloud ECS'
     read_dmi_data_expected = [mock.call('system-product-name')]
 
