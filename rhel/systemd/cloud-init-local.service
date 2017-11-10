@@ -14,6 +14,9 @@ ConditionKernelCommandLine=!cloud-init=disabled
 
 [Service]
 Type=oneshot
+ExecStartPre=/bin/mkdir -p /run/cloud-init
+ExecStartPre=/sbin/restorecon /run/cloud-init
+ExecStartPre=/usr/bin/touch /run/cloud-init/enabled
 ExecStart=/usr/bin/cloud-init init --local
 ExecStart=/bin/touch /run/cloud-init/network-config-ready
 RemainAfterExit=yes
