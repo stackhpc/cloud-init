@@ -350,6 +350,23 @@ class Renderer(renderer.Renderer):
                 if 'gateway' in subnet:
                     iface_cfg['GATEWAY'] = subnet['gateway']
 
+                if 'dns_search' in subnet:
+                    if isinstance(subnet['dns_search'], (list, tuple)):
+                        # Currently limited to 6 entries per resolv.conf(5)
+                        search_list = subnet['dns_search'][:6]
+                        iface_cfg['DOMAIN'] = ' '.join(search_list)
+                    else:
+                        iface_cfg['DOMAIN'] = subnet['dns_search']
+
+                if 'dns_nameservers' in subnet:
+                    if isinstance(subnet['dns_search'], (list, tuple)):
+                        # Currently limited to 3 entries per resolv.conf(5)
+                        dns_list = subnet['dns_nameservers'][:3]
+                        for i, k in enumerate(dns_list, 1):
+                            iface_cfg['DNS' + str(i)] = k
+                    else:
+                        iface_cfg['DNS1'] = subnet['dns_nameservers']
+
     @classmethod
     def _render_subnet_routes(cls, iface_cfg, route_cfg, subnets):
         for i, subnet in enumerate(subnets, start=len(iface_cfg.children)):

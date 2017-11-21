@@ -813,7 +813,9 @@ USERCTL=no
 
     def test_network_config_v1_samples(self):
         ns = network_state.parse_net_config_data(CONFIG_V1_SIMPLE_SUBNET)
-        render_dir = self.tmp_path("render")
+        tmp_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp_dir)
+        render_dir = os.path.join(tmp_dir, "render")
         os.makedirs(render_dir)
         renderer = sysconfig.Renderer()
         renderer.render_network_state(render_dir, ns)
@@ -837,7 +839,9 @@ USERCTL=no
 
     def test_config_with_explicit_loopback(self):
         ns = network_state.parse_net_config_data(CONFIG_V1_EXPLICIT_LOOPBACK)
-        render_dir = self.tmp_path("render")
+        tmp_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp_dir)
+        render_dir = os.path.join(tmp_dir, "render")
         os.makedirs(render_dir)
         renderer = sysconfig.Renderer()
         renderer.render_network_state(render_dir, ns)
@@ -897,7 +901,8 @@ iface eth1000 inet dhcp
         self.assertEqual(expected.lstrip(), contents.lstrip())
 
     def test_config_with_explicit_loopback(self):
-        tmp_dir = self.tmp_dir()
+        tmp_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp_dir)
         ns = network_state.parse_net_config_data(CONFIG_V1_EXPLICIT_LOOPBACK)
         renderer = eni.Renderer()
         renderer.render_network_state(tmp_dir, ns)
