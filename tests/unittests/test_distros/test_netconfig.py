@@ -257,6 +257,7 @@ NETWORKING=yes
 # Created by cloud-init on instance boot automatically, do not edit.
 #
 BOOTPROTO=none
+DEFROUTE=yes
 DEVICE=eth0
 IPADDR=192.168.1.5
 NETMASK=255.255.255.0
@@ -404,10 +405,11 @@ IPV6_AUTOCONF=no
 # Created by cloud-init on instance boot automatically, do not edit.
 #
 BOOTPROTO=none
+DEFROUTE=yes
 DEVICE=eth0
 IPV6ADDR=2607:f0d0:1002:0011::2/64
-GATEWAY=2607:f0d0:1002:0011::1
 IPV6INIT=yes
+IPV6_DEFAULTGW=2607:f0d0:1002:0011::1
 ONBOOT=yes
 TYPE=Ethernet
 USERCTL=no

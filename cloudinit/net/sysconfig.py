@@ -348,7 +348,11 @@ class Renderer(renderer.Renderer):
                                 subnet['netmask']
 
                 if 'gateway' in subnet:
-                    iface_cfg['GATEWAY'] = subnet['gateway']
+                    iface_cfg['DEFROUTE'] = True
+                    if ":" in subnet['gateway']:
+                        iface_cfg['IPV6_DEFAULTGW'] = subnet['gateway']
+                    else:
+                        iface_cfg['GATEWAY'] = subnet['gateway']
 
                 if 'dns_search' in subnet:
                     if isinstance(subnet['dns_search'], (list, tuple)):

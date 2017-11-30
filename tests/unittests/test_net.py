@@ -826,6 +826,7 @@ USERCTL=no
 # Created by cloud-init on instance boot automatically, do not edit.
 #
 BOOTPROTO=none
+DEFROUTE=yes
 DEVICE=interface0
 GATEWAY=10.0.2.2
 HWADDR=52:54:00:12:34:00
