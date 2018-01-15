@@ -363,7 +363,7 @@ class Renderer(renderer.Renderer):
                         iface_cfg['DOMAIN'] = subnet['dns_search']
 
                 if 'dns_nameservers' in subnet:
-                    if isinstance(subnet['dns_search'], (list, tuple)):
+                    if isinstance(subnet['dns_nameservers'], (list, tuple)):
                         # Currently limited to 3 entries per resolv.conf(5)
                         dns_list = subnet['dns_nameservers'][:3]
                         for i, k in enumerate(dns_list, 1):
