@@ -27,7 +27,8 @@ AGENT_START = ['service', 'walinuxagent', 'start']
 AGENT_START_BUILTIN = "__builtin__"
 BOUNCE_COMMAND = [
     'sh', '-xc',
-    "i=$interface; x=0; ifdown $i || x=$?; ifup $i || x=$?; exit $x"
+    "i=$interface; DHCP_HOSTNAME=$hostname; x=0; "
+    "ifdown $i || x=$?; ifup $i || x=$?; exit $x"
 ]
 # azure systems will always have a resource disk, and 66-azure-ephemeral.rules
 # ensures that it gets linked to this path.
