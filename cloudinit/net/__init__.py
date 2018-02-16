@@ -376,6 +376,20 @@ def get_interface_mac(ifname):
     return read_sys_net_safe(ifname, path)
 
 
+def get_ib_interface_hwaddr(ifname, ethernet_format):
+    """Returns the string value of an Infiniband interface's hardware
+    address. If ethernet_format is True, an Ethernet MAC-style 6 byte
+    representation of the address will be returned.
+    """
+    # Type 32 is Infiniband.
+    if read_sys_net_safe(ifname, 'type') == '32':
+        mac = get_interface_mac(ifname)
+        if mac and ethernet_format:
+            # Use bytes 13-15 and 18-20 of the hardware address.
+            mac = mac[36:-14] + mac[51:]
+        return mac
+
+
 def get_interfaces_by_mac():
     """Build a dictionary of tuples {mac: name}.
 
@@ -395,13 +409,47 @@ def get_interfaces_by_mac():
             continue
         mac = get_interface_mac(name)
         # some devices may not have a mac (tun0)
-        if not mac:
+        if mac:
+            if mac in ret:
+                raise RuntimeError(
+                    "duplicate mac found! both '%s' and '%s' have mac '%s'" %
+                    (name, ret[mac], mac))
+            ret[mac] = name
+        # Try to get an Infiniband hardware address (in 6 byte Ethernet format)
+        # for the interface.
+        ib_mac = get_ib_interface_hwaddr(name, True)
+        if ib_mac:
+            if ib_mac in ret:
+                raise RuntimeError(
+                    "duplicate mac found! both '%s' and '%s' have mac '%s'" %
+                    (name, ret[mac], mac))
+            ret[ib_mac] = name
+    return ret
+
+
+def get_ib_hwaddrs_by_interface():
+    """Build a dictionary mapping Infiniband interface names to their hardware
+    address."""
+    try:
+        devs = get_devicelist()
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            devs = []
+        else:
+            raise
+    ret = {}
+    for name in devs:
+        if not interface_has_own_mac(name):
             continue
-        if mac in ret:
-            raise RuntimeError(
-                "duplicate mac found! both '%s' and '%s' have mac '%s'" %
-                (name, ret[mac], mac))
-        ret[mac] = name
+        if is_bridge(name):
+            continue
+        ib_mac = get_ib_interface_hwaddr(name, False)
+        if ib_mac:
+            if ib_mac in ret:
+                raise RuntimeError(
+                    "duplicate mac found! both '%s' and '%s' have mac '%s'" %
+                    (name, ret[mac], mac))
+            ret[name] = ib_mac
     return ret
 
 # vi: ts=4 expandtab
