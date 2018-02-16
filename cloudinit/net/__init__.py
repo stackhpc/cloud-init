@@ -346,6 +346,20 @@ def get_interface_mac(ifname):
     return read_sys_net_safe(ifname, path)
 
 
+def get_ib_interface_hwaddr(ifname, ethernet_format):
+    """Returns the string value of an Infiniband interface's hardware
+    address. If ethernet_format is True, an Ethernet MAC-style 6 byte
+    representation of the address will be returned.
+    """
+    # Type 32 is Infiniband.
+    if read_sys_net_safe(ifname, 'type') == '32':
+        mac = get_interface_mac(ifname)
+        if mac and ethernet_format:
+            # Use bytes 13-15 and 18-20 of the hardware address.
+            mac = mac[36:-14] + mac[51:]
+        return mac
+
+
 def get_interfaces_by_mac(devs=None):
     """Build a dictionary of tuples {mac: name}"""
     if devs is None:
@@ -362,6 +376,28 @@ def get_interfaces_by_mac(devs=None):
         # some devices may not have a mac (tun0)
         if mac:
             ret[mac] = name
+        ib_mac = get_ib_interface_hwaddr(name, True)
+        if ib_mac:
+            ret[ib_mac] = name
+    return ret
+
+
+def get_ib_hwaddrs_by_interface(devs=None):
+    """Build a dictionary mapping Infiniband interface names to their hardware
+    address."""
+    if devs is None:
+        try:
+            devs = get_devicelist()
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                devs = []
+            else:
+                raise
+    ret = {}
+    for name in devs:
+        ib_mac = get_ib_interface_hwaddr(name, False)
+        if ib_mac:
+            ret[name] = ib_mac
     return ret
 
 # vi: ts=4 expandtab

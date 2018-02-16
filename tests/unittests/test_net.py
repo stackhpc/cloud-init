@@ -818,6 +818,66 @@ class TestEniRoundTrip(TestCase):
             expected, [line for line in found if line])
 
 
+def _fake_read_sys_net(ifname, path):
+    ib_addr = '80:00:00:28:fe:80:00:00:00:00:00:00:00:11:22:03:00:33:44:56'
+    data = {
+        'eth0': {
+            'address': '00:11:22:33:44:55',
+            'type': '1'
+        },
+        'ib0': {
+            'address': ib_addr,
+            'type': '32'
+        }
+    }
+    return data[ifname][path]
+
+
+class TestGetInterfacesByMAC(TestCase):
+
+    @mock.patch.object(net.os.path, 'isdir')
+    @mock.patch.object(net, 'read_sys_net_safe',
+                       side_effect=_fake_read_sys_net)
+    def test_ethernet(self, mock_read, mock_isdir):
+        mock_isdir.return_value = False
+        result = net.get_interfaces_by_mac(devs=['eth0'])
+        expected = {'00:11:22:33:44:55': 'eth0'}
+        self.assertEqual(expected, result)
+
+    @mock.patch.object(net.os.path, 'isdir')
+    @mock.patch.object(net, 'read_sys_net_safe',
+                       side_effect=_fake_read_sys_net)
+    def test_ib(self, mock_read, mock_isdir):
+        mock_isdir.return_value = False
+        result = net.get_interfaces_by_mac(devs=['ib0'])
+        ib_addr = '80:00:00:28:fe:80:00:00:00:00:00:00:00:11:22:03:00:33:44:56'
+        expected = {'00:11:22:33:44:56': 'ib0',
+                    ib_addr: 'ib0'}
+        self.assertEqual(expected, result)
+
+
+class TestGetIBHwaddrsByInterface(TestCase):
+
+    @mock.patch.object(net.os.path, 'isdir')
+    @mock.patch.object(net, 'read_sys_net_safe',
+                       side_effect=_fake_read_sys_net)
+    def test_ethernet(self, mock_read, mock_isdir):
+        mock_isdir.return_value = False
+        result = net.get_ib_hwaddrs_by_interface(devs=['eth0'])
+        expected = {}
+        self.assertEqual(expected, result)
+
+    @mock.patch.object(net.os.path, 'isdir')
+    @mock.patch.object(net, 'read_sys_net_safe',
+                       side_effect=_fake_read_sys_net)
+    def test_ib(self, mock_read, mock_isdir):
+        mock_isdir.return_value = False
+        result = net.get_ib_hwaddrs_by_interface(devs=['ib0'])
+        ib_addr = '80:00:00:28:fe:80:00:00:00:00:00:00:00:11:22:03:00:33:44:56'
+        expected = {'ib0': ib_addr}
+        self.assertEqual(expected, result)
+
+
 def _gzip_data(data):
     with io.BytesIO() as iobuf:
         gzfp = gzip.GzipFile(mode="wb", fileobj=iobuf)
