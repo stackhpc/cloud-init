@@ -636,6 +636,7 @@ def convert_net_json(network_json=None, known_macs=None):
     if need_names or link_updates:
         if known_macs is None:
             known_macs = net.get_interfaces_by_mac()
+            LOG.debug("MG: Got known MACs: %s", known_macs)
 
         # go through and fill out the link_id_info with names
         for link_id, info in link_id_info.items():
@@ -647,8 +648,10 @@ def convert_net_json(network_json=None, known_macs=None):
         for d in need_names:
             mac = d.get('mac_address')
             if not mac:
+                LOG.error("MG: No MAC address or name for %s", d)
                 raise ValueError("No mac_address or name entry for %s" % d)
             if mac not in known_macs:
+                LOG.error("MG: unable to find nic for %s", d)
                 raise ValueError("Unable to find a system nic for %s" % d)
             d['name'] = known_macs[mac]
 
@@ -663,6 +666,7 @@ def convert_net_json(network_json=None, known_macs=None):
     # interface name above. Now ensure that the hardware address is set to the
     # full 20 byte address.
     ib_known_hwaddrs = net.get_ib_hwaddrs_by_interface()
+    LOG.debug("MG: Got IB known MACs: %s", ib_known_hwaddrs)
     if ib_known_hwaddrs:
         for cfg in config:
             if cfg['name'] in ib_known_hwaddrs:
@@ -673,6 +677,7 @@ def convert_net_json(network_json=None, known_macs=None):
         cfg.update({'type': 'nameserver'})
         config.append(cfg)
 
+    LOG.debug("MG: network_data: %s", config)
     return {'version': 1, 'config': config}
 
 # vi: ts=4 expandtab
