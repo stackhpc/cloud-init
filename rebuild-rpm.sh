@@ -2,7 +2,17 @@
 
 set -e
 
-SRPM=http://vault.centos.org/7.4.1708/updates/Source/SPackages/cloud-init-0.7.9-9.el7.centos.6.src.rpm
+CENTOS_RELEASE=${CENTOS_RELEASE:-7.5.1804}
+# Upstream repository name. Usually os or updates.
+CENTOS_REPO=${CENTOS_REPO:-os}
+# SRPM filename.
+CLOUD_INIT_SRPM=${CLOUD_INIT_SRPM:-cloud-init-0.7.9-24.el7.centos.src.rpm}
+# Distribution patch number in the version.
+CLOUD_INIT_DIST=${CLOUD_INIT_DIST:-24}
+# The last patch in the spec file before Patch9999.
+CLOUD_INIT_PATCHES=${CLOUD_INIT_PATCHES:-39}
+
+SRPM=http://vault.centos.org/${CENTOS_RELEASE}/${CENTOS_REPO}/Source/SPackages/${CLOUD_INIT_SRPM}
 TOPDIR=~/rpmbuild
 
 # Download & install SRPM.
@@ -16,14 +26,14 @@ popd
 rm -rf $tempdir
 
 # Generate patches
-git format-patch -1 891833fecd810cd7cc7899575f1c3cc620399577 --stdout > $TOPDIR/SOURCES/0034-ib-interface-configdrive.patch
-git format-patch -1 02e439e76bad7cf2c6ee95693e791ca7d1a31a28 --stdout > $TOPDIR/SOURCES/0035-convert-net-json-debug.patch
+git format-patch -1 891833fecd810cd7cc7899575f1c3cc620399577 --stdout > $TOPDIR/SOURCES/00$((CLOUD_INIT_PATCHES + 1))-ib-interface-configdrive.patch
+git format-patch -1 02e439e76bad7cf2c6ee95693e791ca7d1a31a28 --stdout > $TOPDIR/SOURCES/00$((CLOUD_INIT_PATCHES + 2))-convert-net-json-debug.patch
 
 # Modify specfile.
-sed -i -e "s/^Release:.*$/Release:        9%{?dist}.7/" $TOPDIR/SPECS/cloud-init.spec
+sed -i -e "s/^Release:.*$/Release:        9%{?dist}.$((CLOUD_INIT_DIST + 1))/" $TOPDIR/SPECS/cloud-init.spec
 sed -i -e "/Patch9999:/i\
-Patch0034: 0034-ib-interface-configdrive.patch\n\
-Patch0035: 0035-convert-net-json-debug.patch" $TOPDIR/SPECS/cloud-init.spec
+Patch00$((CLOUD_INIT_PATCHES + 1)): 00$((CLOUD_INIT_PATCHES + 1))-ib-interface-configdrive.patch\n\
+Patch00$((CLOUD_INIT_PATCHES + 2)): 00$((CLOUD_INIT_PATCHES + 2))-convert-net-json-debug.patch" $TOPDIR/SPECS/cloud-init.spec
 
 # Build
 rpmbuild -ba $TOPDIR/SPECS/cloud-init.spec
