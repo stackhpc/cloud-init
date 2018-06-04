@@ -29,12 +29,14 @@ rm -rf $tempdir
 # Generate patches
 git format-patch -1 0fec13275831c857ff4c1c0bb0c14f8fef9abb28 --stdout > $TOPDIR/SOURCES/00$((CLOUD_INIT_PATCHES + 1))-ib-interface-configdrive.patch
 git format-patch -1 872de67a9db5cf75c3f59734a6987aef80496a27 --stdout > $TOPDIR/SOURCES/00$((CLOUD_INIT_PATCHES + 2))-convert-net-json-debug.patch
+git format-patch -1 d9cbb0c18431ccb6173bed42f352e79febdb74bd --stdout > $TOPDIR/SOURCES/00$((CLOUD_INIT_PATCHES + 3))-fix-ipv6-default-gateway.patch
 
 # Modify specfile.
 sed -i -e "s/^Release:.*$/Release:        ${CLOUD_INIT_DIST}%{?dist}${CLOUD_INIT_UPDATE}/" $TOPDIR/SPECS/cloud-init.spec
 sed -i -e "/Patch9999:/i\
 Patch00$((CLOUD_INIT_PATCHES + 1)): 00$((CLOUD_INIT_PATCHES + 1))-ib-interface-configdrive.patch\n\
-Patch00$((CLOUD_INIT_PATCHES + 2)): 00$((CLOUD_INIT_PATCHES + 2))-convert-net-json-debug.patch" $TOPDIR/SPECS/cloud-init.spec
+Patch00$((CLOUD_INIT_PATCHES + 2)): 00$((CLOUD_INIT_PATCHES + 2))-convert-net-json-debug.patch\n\
+Patch00$((CLOUD_INIT_PATCHES + 3)): 00$((CLOUD_INIT_PATCHES + 3))-fix-ipv6-default-gateway.patch" $TOPDIR/SPECS/cloud-init.spec
 
 # Build
 rpmbuild -ba $TOPDIR/SPECS/cloud-init.spec
