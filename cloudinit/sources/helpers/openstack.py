@@ -671,6 +671,7 @@ def convert_net_json(network_json=None, known_macs=None):
         for cfg in config:
             if cfg['name'] in ib_known_hwaddrs:
                 cfg['mac_address'] = ib_known_hwaddrs[cfg['name']]
+                cfg['type'] = 'infiniband'
 
     for service in services:
         cfg = service
